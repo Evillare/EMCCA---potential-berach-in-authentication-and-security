@@ -1,0 +1,49 @@
+Hi! I'm like, a mediocre techy in skills. I come from games production, and haven't really released anything or made much of note. This has lead me to be kinda uncertain in my findings, but ultimately found here and this seems like a good space to go to.
+
+A while back, on the first day of passover funnily, I was made aware of a local government org (a group called East Midlands Combined Council Authority/EMCCA). 
+I initially took my findings to journalists, but because I didn't break it, and those journalists told the EMCCA, they've returned everything and declared no risk of breach to moi.
+
+So, what's the risks? There's a couple major faults to set up, then I can explain and see if people can help me understand if this is as bad as it seems, as a lot of the other checks I've made are ringing red flags and alarm bells.
+
+The notable weaknesses that made me want to dive deeper - they have a poorly labelled public registry, with some documents even labelled as not for the public in this list. However, when mentioned, they said anything on the list is meant to be public information. 
+I also managed to find documents with links to the groups Microsoft SharePoint, and a link to the a Teams Meeting that, when the document was sent to public, was still yet to occur. 
+However, again, when this was put in the email they brushed it off as purposefully released information. So when i finally returned home from a day with family, I decided to press f12 on the site, and scrawl a bit more.
+
+The first major decision - all of the sites back-end is a cold call to a private server (to the degree the url no longer has any www call (ofc), but instead is referred to as "Democracy"). 
+This server started so unprotected that it didn't even have a basic robots.txt, and AI's could scrape private file names and internal document names. 
+This server is also so bad it seems to have open calls to user files in the code, and multiple files just sorted into the documents section. 
+They are using this for EVERYTHING back-end, but by itself is more like, an amber danger than a red flag. 
+It's a thing no other govt website I've checked seems to do, but if you couldn't openly enter the server it'd be fine. 
+The code is blasé with these internal calls, the old exception checking system for local users, the one that was to allow the local user to modify public files freely, is still IN the code, confirming our server's user referral as "Scooby", but generally there is a simple rejection system for unwanted users. 
+
+The bigger worry is the logging in and document systems. 
+So, to check what fields a user should be able to access, they cold call a public URL with a BUNCH of public variables in the URL header line (for example "DocumentLockChecker.ajax/Editable=0,docNum=1500,hdrNum=300,canSee=0"). 
+They even labelled the URL as "lock" (the name is longer, but I am gonna be careful on a public forum as I am unsure how bad of abreach this is). 
+This made it exceptionally easy to figure out how they referred to internal files - you could test document numbering, you can figure out doc versus header registries, etc, etc. 
+Again, unless you were to brute force some parts however, it would be near impossible to do, and the parts to brute force would take a whiiiiile.
+
+Then I found the bigger breach. On this site, they have a log-in/apply for email updates page. 
+Seemingly, this is a drop page for all log ins, no matter the reason or user. 
+The public website consistently refers to documents that apparently are withheld unless you're signed in. 
+This page, it has a special little quirk that it shares with the lock page when you open a document, with the quirk being a cookie it generates. 
+On most browsers (Chrome, Edge) this is a cookie called "fbp" with a long string of numbers - mainly indecipherable nonsense if you wanted to crack such a thing, but risky to leave on the user end.
+
+And then there's Firefox. It has a different cookie, made in ALL the same situations, with the exact same behavioural tendencies, but under a different name, and not as a mess of numbers. 
+It is called "mgLogon", and contains a barely encrypted URL cypher, one that when decrypted (which is incredibly easy) has a string of numbers with a couple notable behaviours. 
+Primarily, it starts with the same repeated data no matter the other generated data, and some odd behaviours within the generated data. 
+I have poked at it with general maths knowledge, generating and comparing and using some AI systems, but it's all been unsure how to move with this cookie. 
+A notable detail with the URL's it checks however - the data is ALL called locally from the users device, and the first thing it checks is a boolean value to see whether a user can edit documents - one that would need a consistent value between URLs, unlike most of the rest.
+
+I've gotten the lock page to try and load a document for me before with values I inputted, but I can't figure out the format I typed into it for that, as I was trying to show someone that I couldn't do that at the time and my internet history does not like saving the lock's URL if it does load to another document. 
+
+I don't really want these files, I have nothing to use redacted documents for and honestly with the data they collect I'd be terrified of a full on data breach, but this currently feels like a ticking time bomb of website design that can only end poorly if not handled. 
+However, with them brushing me off, and then after forcibly shutting it all down for a week returning things the exact way they were, I am worried I'm poking an endless hole that's actually doing nothing, but I cannot believe that with how this has already been acting. 
+I more want to verify my fears, maybe download one generally unimportant redacted doc, send it to them and get them to shut down this house of cards security system.
+
+I hope this is relevant for this forum, it seems split between security and start-ups, and whilst this isn't my company or anything, it seems like it'd be within this forums wheelhouse. 
+I would be willing to share further details and specifics with people interested, but I will say if you do, we should probably move the discussion to a more private space as I don't want to be possibly sharing log-in keys for a govt website publicly.
+
+To clarify my main questions, what are the chances that something like that cookie is a major breach, and if it's highly likely, does this seem like enough for a watchdog, or would cracking it for a document be necessary for the watchdog org and the EMCCA? If both are the case, then I will report immediately as this group currently manages information for buses, the elderly, disabled and more vulnerable groups all over the East Midlands, and is continuing to acquire more into it's network the longer I wait.
+
+
+TL;DR: A govt website seemingly holding all of the log-in/authentication code in the f12 inspect element code, and putting seemingly key user credentials into a user-side cookie, then when asked or pressed hurriedly stripped it to only return it all with only a few patched up holes and the key security weaknesses still there.
