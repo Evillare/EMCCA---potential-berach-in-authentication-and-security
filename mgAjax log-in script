@@ -1,0 +1,37 @@
+As name suggests, this is part of the public code that I think is wild to leave public - I have shortened some URL names, but you can find them in the sites inspect element:
+
+//FB49818 Report for review - no message displayed when multiple access to review. JK/BP
+function LockReportAjax(lRptHdrId, lRptRevId, bSetTrackChanges, sUrl, bAsync, lActionToCheckLocksOnId, lReportLockingMode, oSuccessCallback) {
+    var oAjaxQuery = { url: 'mgtLock.aspx?RPTHDRID=' + lRptHdrId + '&RPTREVID=' + lRptRevId + '&TC=' + (bSetTrackChanges ? 1 : 0) + '&ACTIONID=' + lActionToCheckLocksOnId + '&LOCKMODE=' + lReportLockingMode, f: LockReportAjax, p1: null, p2: null, p3: null, p4: null };
+    //StartHourglass();
+    var bRetVal = false;
+    mgJQuery.ajax({
+        url: oAjaxQuery.url,
+        redirectUrl: sUrl,
+        async: bAsync, //Important because we need the true / false from here to determine if we continue to load the document
+        dataType: 'json',
+        success: function (data) {
+            if (!data) //True / False
+            {
+                //Failure - do not allow access and reload the page to show the lock message
+                location.reload();
+            }
+            else {
+                if (this.redirectUrl != "") { window.location.href = this.redirectUrl; }
+
+                //#50606 Additionally call callback function if passed in
+                if (typeof oSuccessCallback == 'function') {
+                    oSuccessCallback(data);
+                }
+            }
+            //EndHourglass();
+            console.log("Success " + data);
+            return data;
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log("Error: " + textStatus);
+            //EndHourglass();
+            return false;
+        }
+    });
+}
