@@ -1,0 +1,82 @@
+A checker to go around the log-in system for doc editting, HOWEVER this does seem to be depriciated:
+
+function editDocumentWithProgID2(strDocument, varProgID, varEditor, bCheckout, strhttpRoot, strCheckouttolocal)
+{
+    var errorCode = editDocumentWithProgIDNoUI(strDocument, varProgID, varEditor, bCheckout, strhttpRoot, strCheckouttolocal);
+    if (errorCode == 1)
+    {
+        alert(L_EditDocumentRuntimeError_Text);
+        window.onfocus = RefreshOnNextFocus;
+    }
+    else if (errorCode == 2)
+        alert(L_EditDocumentProgIDError_Text);
+}
+
+
+A more detailed checker for document editting:
+
+unction editDocumentWithProgIDNoUI(strDocument, varProgID, varEditor, bCheckout, strhttpRoot, strCheckouttolocal)
+{
+    var objEditor;
+    var fRet;
+    var fUseLocalCopy = false;
+    varEditor = varEditor.replace(/(?:\.\d+)$/, '');
+    if (strDocument.charAt(0) == "/" || strDocument.substr(0, 3).toLowerCase() == "%2f") strDocument = document.location.protocol + "//" + document.location.host + strDocument;
+    var strextension = SzExtension(unescapeProperly(strDocument));
+    if (FSupportCheckoutToLocal(strextension))
+    {
+        try
+        {
+            objEditor = new ActiveXObject(varEditor + ".3");
+            if (objEditor != null)
+            {
+                if (bCheckout == "1")
+                {
+                    if (!objEditor.CheckoutDocumentPrompt(strDocument, true, varProgID)) return 1;
+                }
+                else
+                {
+                    if (strCheckouttolocal == "1") fUseLocalCopy = true;
+                    if (!objEditor.EditDocument3(window, strDocument, fUseLocalCopy, varProgID)) return 1;
+                }
+                var fRefreshOnNextFocus = false;
+                fRefreshOnNextFocus = objEditor.PromptedOnLastOpen();
+                if (fRefreshOnNextFocus)
+                {
+                    window.onfocus = RefreshOnNextFocus;
+                }
+                else
+                {
+                    SetWindowRefreshOnFocus();
+                }
+                return;
+            }
+        }
+        catch (e)
+        {
+        }
+    }
+
+
+A function called "sessionGet", right before the auth:
+
+function SessionGet(keyName)
+{
+    if (typeof (Storage) !== "undefined")
+    {
+        var sValue = sessionStorage[keyName];
+        //alert("SessionGet:" + keyName + " : " + sValue);
+        return sValue;
+    }
+    else
+    {
+        return "";
+    }
+}
+
+Just... read the function name...:
+
+function EditWithoutRegFix(sDocPath, sObject)
+{
+    editDocumentWithProgID2(sDocPath.substring(0), '', sObject, '0', 'http://scooby/', '0')
+}
